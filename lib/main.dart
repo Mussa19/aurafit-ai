@@ -24,4 +24,4 @@ class AuraFitAI extends StatelessWidget {
       home: const HomeScreen(),
     );
   }
-}а
+}
