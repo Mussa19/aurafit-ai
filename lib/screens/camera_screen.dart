@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class CameraScreen extends StatelessWidget {
@@ -6,17 +5,13 @@ class CameraScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Take Photo")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.camera_alt, size: 100),
-            SizedBox(height: 20),
-            Text("Camera will analyze your body form", style: TextStyle(fontSize: 18)),
-          ],
-        ),
+      appBar: AppBar(
+        title: const Text("Food Scanner"),
+      ),
+      
+    
       ),
     );
   }
