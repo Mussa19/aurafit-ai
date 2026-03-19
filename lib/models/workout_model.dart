@@ -1,11 +1,13 @@
-class Workout {
-
+class WorkoutExercise {
   final String name;
-  final int duration;
+  final int sets;
+  final String reps; // Using String because reps can be "12" or "60 sec"
+  final bool isCompleted;
 
-  Workout({
+  WorkoutExercise({
     required this.name,
-    required this.duration,
+    required this.sets,
+    required this.reps,
+    this.isCompleted = false,
   });
-
 }
