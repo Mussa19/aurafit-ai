@@ -1,59 +1,44 @@
 import 'package:flutter/material.dart';
+import '../models/workout_model.dart'; // Import your new model
 
 class PlanScreen extends StatelessWidget {
   const PlanScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Basic dummy data for your AI-generated plan
-    final List<Map<String, String>> exercises = [
-      {"name": "Push Ups", "sets": "3", "reps": "15"},
-      {"name": "Squats", "sets": "4", "reps": "12"},
-      {"name": "Plank", "sets": "3", "reps": "60 sec"},
-      {"name": "Lunges", "sets": "3", "reps": "10 each leg"},
+    // Now using the Model Class instead of a Map!
+    final List<WorkoutExercise> workoutPlan = [
+      WorkoutExercise(name: "Push Ups", sets: 3, reps: "15"),
+      WorkoutExercise(name: "Bench Press", sets: 4, reps: "10"),
+      WorkoutExercise(name: "Dumbbell Flyes", sets: 3, reps: "12"),
+      WorkoutExercise(name: "Plank", sets: 3, reps: "60 sec"),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Workout Plan"),
+        title: const Text("AI Workout Plan"),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Text(
-              "Today's AI Recommendation:",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      body: ListView.builder(
+        itemCount: workoutPlan.length,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        itemBuilder: (context, index) {
+          final exercise = workoutPlan[index]; // Reference the object
+          
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ListTile(
+              leading: const Icon(Icons.fitness_center, color: Colors.deepPurple),
+              title: Text(exercise.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text("${exercise.sets} Sets x ${exercise.reps}"),
+              trailing: Icon(
+                exercise.isCompleted ? Icons.check_circle : Icons.circle_outlined,
+                color: exercise.isCompleted ? Colors.green : Colors.grey,
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: exercises.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blueAccent,
-                      child: Text("${index + 1}", style: const TextStyle(color: Colors.white)),
-                    ),
-                    title: Text(
-                      exercises[index]["name"]!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text("Sets: ${exercises[index]["sets"]} | Reps: ${exercises[index]["reps"]}"),
-                    trailing: const Icon(Icons.check_circle_outline, color: Colors.grey),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
