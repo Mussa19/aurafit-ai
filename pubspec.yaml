@@ -3,7 +3,8 @@ description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
+dependencies:
+  google_generative_ai: ^0.4.0
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -87,3 +88,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter pub add google_generative_ai
+```[[1](https://www.google.com/url?sa=E&q=https%3A%2F%2Fvertexaisearch.cloud.google.com%2Fgrounding-api-redirect%2FAUZIYQFBh8HGDYmaQwk_DtzAJ-7yPQdjpO3cR0Mtn_ok4Iay5ZeaVKutqVTOGZbNC4OYOq52yrTp3wpY-5ZBQ8GR8dr67Sb29VaNT5UQbb6G59WmbI1Phn4hCmyI2xSVwkSyh6NzYtJ7f8i1CCyx9q75qutPpMsQz-EHG2dNb-MD12OmBRAyUd8oq9XxY9ES7sMdGPPr4A%3D%3D)][[2](https://www.google.com/url?sa=E&q=https%3A%2F%2Fvertexaisearch.cloud.google.com%2Fgrounding-api-redirect%2FAUZIYQHoPxA_jjVc0MpNzEnHIbHGSSZ0yZ0hMmvFIY9yVqXTE0fQWe19nN24QMfqdrWKq4VeVvcHukZSsuUoWh-_xLn2uptTlQkDljCCw0xSCWa23IHMwmYDdYBNJuO7-cKp-cOkgjYb8d8Qm8Fg)]
+
