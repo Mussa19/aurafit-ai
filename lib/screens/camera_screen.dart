@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'analyze_screen.dart'; // Import this to navigate after scanning
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import '../services/ai_service.dart';
+import 'analyze_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -8,106 +11,60 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _CameraScreenState extends State<CameraScreen> {
+  final ImagePicker picker = ImagePicker();
+  bool isLoading = false; // Added to track AI status
 
-  @override
-  void initState() {
-    super.initState();
-    // Animation duration: 2 seconds to go from top to bottom
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat(reverse: true); // Makes it bounce up and down
-  }
+  Future<void> pickImage() async {
+    // 1. Changed to .gallery because you are on Windows
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-  @override
-  void dispose() {
-    _controller.dispose(); // Clean up the controller when leaving the screen
-    super.dispose();
-  }
+    if (image == null) return;
 
-  void _onCapture() {
-    // Navigate to Analyze Screen to simulate AI processing
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AnalyzeScreen()),
-    );
+    setState(() {
+      isLoading = true; // Show loading spinner
+    });
+
+    try {
+      final File imageFile = File(image.path);
+
+      // 🔥 AI анализ
+      final result = await AiService.analyzeFood(imageFile);
+
+      // 👉 переход на анализ
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AnalyzeScreen(result: result),
+        ),
+      );
+    } catch (e) {
+      // Handle errors (like bad API key or no internet)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loading spinner
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("AI Food Scanner"),
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        title: const Text("Scan Food"),
       ),
-      body: Stack(
-        children: [
-          // 1. Dark Placeholder for Camera Feed
-          Center(
-            child: Icon(
-              Icons.fastfood, 
-              size: 150, 
-              color: Colors.white.withOpacity(0.1),
+      body: Center(
+        child: isLoading 
+          ? const CircularProgressIndicator() // Show spinner when busy
+          : ElevatedButton.icon(
+              onPressed: pickImage,
+              icon: const Icon(Icons.photo_library),
+              label: const Text("Pick Food Image (Gallery)"),
             ),
-          ),
-
-          // 2. The Animated Scanning Line
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Positioned(
-                // Use the animation value (0.0 to 1.0) to set the vertical position
-                top: _controller.value * MediaQuery.of(context).size.height * 0.7,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: Colors.cyanAccent,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.cyanAccent.withOpacity(0.8),
-                        blurRadius: 15,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-
-          // 3. Capture Button Overlay
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                const Text(
-                  "Scanning for nutritional data...",
-                  style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.w300),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: _onCapture,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 4),
-                    ),
-                    child: const Icon(Icons.camera, color: Colors.white, size: 40),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
