@@ -4,10 +4,10 @@ import 'screens/setup_screen.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
-  // 1. Инициализация для работы с памятью до запуска UI
+ 
   WidgetsFlutterBinding.ensureInitialized();
   
-  // 2. Проверяем, был ли уже выполнен вход
+  
   final prefs = await SharedPreferences.getInstance();
   final bool isSetupComplete = prefs.getBool('is_setup_complete') ?? false;
 
@@ -23,8 +23,8 @@ class AuraFitApp extends StatefulWidget {
 }
 
 class _AuraFitAppState extends State<AuraFitApp> {
-  // Твоя логика переключения темы
-  ThemeMode _themeMode = ThemeMode.dark; // Поставим dark по умолчанию для стиля Aura
+  
+  ThemeMode _themeMode = ThemeMode.dark; 
 
   void _toggleTheme() {
     setState(() {
@@ -38,7 +38,7 @@ class _AuraFitAppState extends State<AuraFitApp> {
       debugShowCheckedModeBanner: false,
       title: "AuraFit AI",
       
-      // Настройки твоих тем
+      
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.deepPurple,
@@ -46,13 +46,13 @@ class _AuraFitAppState extends State<AuraFitApp> {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F0F13), // Наш темный фон
+        scaffoldBackgroundColor: const Color(0xFF0F0F13), 
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
       ),
       themeMode: _themeMode,
 
-      // 3. Умный выбор домашнего экрана
+      
       home: widget.isSetupComplete 
           ? const HomeScreen() 
           : SetupScreen(onThemeToggle: _toggleTheme),

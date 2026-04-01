@@ -31,9 +31,9 @@ class _SetupScreenState extends State<SetupScreen> {
     await prefs.setString('user_email', _emailController.text);
     await prefs.setString('user_weight', _weightController.text);
     await prefs.setString('user_height', _heightController.text);
-    await prefs.setBool('is_setup_complete', true); // Флаг, что вход выполнен
+    await prefs.setBool('is_setup_complete', true); 
 
-    // 3. Переход на главный экран без возможности вернуться назад
+    
     if (!mounted) return;
     Navigator.pushReplacement(
       context,

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
 class AnalyzeScreen extends StatelessWidget {
-  final dynamic result; // Теперь принимает либо строку, либо Map
-  final bool isBody;    // Флаг: анализ тела или еды
+  final dynamic result; 
+  final bool isBody;    
 
   const AnalyzeScreen({
     super.key, 
@@ -14,7 +14,7 @@ class AnalyzeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F13), // Наш фирменный темный
+      backgroundColor: const Color(0xFF0F0F13), 
       appBar: AppBar(
         title: const Text("AI Insights"),
         backgroundColor: Colors.transparent,
@@ -25,7 +25,7 @@ class AnalyzeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // --- HEADER ICON ---
+            
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -50,7 +50,7 @@ class AnalyzeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            // --- RESULT CARD ---
+            
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -88,7 +88,7 @@ class AnalyzeScreen extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // --- ACTIONS ---
+            
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
@@ -101,7 +101,7 @@ class AnalyzeScreen extends StatelessWidget {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  (route) => false, // Очищаем историю навигации
+                  (route) => false, 
                 );
               },
               child: const Text("Done", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

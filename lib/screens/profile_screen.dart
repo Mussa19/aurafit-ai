@@ -26,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                 onPressed: () async {
-                  await prefs.clear(); // Сброс всех данных
+                  await prefs.clear(); 
                   Navigator.pushAndRemoveUntil(context, 
                     MaterialPageRoute(builder: (_) => const SetupScreen()), (route) => false);
                 },

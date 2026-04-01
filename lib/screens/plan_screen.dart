@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// Удалили импорты exercise_card.dart и api_service.dart, так как они вызывают ошибки
+
 
 class PlanScreen extends StatefulWidget {
   const PlanScreen({super.key});
@@ -71,7 +71,7 @@ class _PlanScreenState extends State<PlanScreen> {
               itemCount: exercises.length,
               itemBuilder: (context, index) {
                 final item = exercises[index];
-                // Используем стандартный ListTile вместо отсутствующего ExerciseCard
+                //  ListTile 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(

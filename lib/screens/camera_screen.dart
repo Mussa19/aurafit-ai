@@ -16,9 +16,9 @@ class _CameraScreenState extends State<CameraScreen> {
   bool isLoading = false;
   final ImagePicker picker = ImagePicker();
 
-  // Основная функция захвата и анализа
+  
   Future<void> _captureAndAnalyze() async {
-    // 1. Выбираем фото (Gallery для Windows/Simulators, можно сменить на Camera для телефона)
+    
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     
     if (image == null) return;
@@ -29,16 +29,16 @@ class _CameraScreenState extends State<CameraScreen> {
       final File imageFile = File(image.path);
       String result;
 
-      // 2. Вызываем нужный AI метод в зависимости от режима
+      
       if (isBodyMode) {
-        // Здесь будет твой метод для тела
+        
         result = "AI Body Analysis: Posture is 85% aligned. Slight tilt detected in left shoulder. Suggested: Lateral raises.";
       } else {
-        // Метод для еды
+        
         result = await AiService.analyzeFood(imageFile);
       }
 
-      // 3. Переходим на экран анализа
+      
       if (!mounted) return;
       Navigator.push(
         context,
@@ -61,14 +61,14 @@ class _CameraScreenState extends State<CameraScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Превью (Заглушка)
+          
           Center(
             child: isLoading 
               ? const CircularProgressIndicator(color: Colors.deepPurpleAccent)
               : const Icon(Icons.camera_alt, color: Colors.white24, size: 100),
           ),
 
-          // 1. Оверлей-подсказка
+          
           if (!isLoading) Center(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -93,7 +93,7 @@ class _CameraScreenState extends State<CameraScreen> {
             ),
           ),
 
-          // 2. Кнопка закрытия
+          
           Positioned(
             top: 40,
             left: 20,

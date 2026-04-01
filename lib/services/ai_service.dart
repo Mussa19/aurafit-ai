@@ -2,14 +2,12 @@ import 'dart:io';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class AiService {
-  // 🔑 Твой API Ключ. 
-  // ВНИМАНИЕ: Никогда не выкладывай его в открытый доступ (например, на GitHub)!
   static const String apiKey = "AIzaSyCPkYY91Pq586Y1LtjZazrVQxT3DUbvzZ8"; 
 
-  // 📸 Анализ еды (Gemini Flash 1.5)
+  
   static Future<String> analyzeFood(File image) async {
     try {
-      // Для Google Generative AI версии 0.4.0+ лучше использовать префикс 'models/'
+      
       final model = GenerativeModel(
         model: 'models/gemini-1.5-flash', 
         apiKey: apiKey
@@ -32,7 +30,7 @@ class AiService {
     }
   }
 
-  // 🏋️ Генерация плана тренировок
+  
   static Future<String> generateWorkout(String goal) async {
     try {
       final model = GenerativeModel(
