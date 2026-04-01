@@ -25,7 +25,7 @@ class AiService {
     }
   }
 
-  // 🏋️ Free Workout Generation
+  
   static Future<String> generateWorkout(String goal) async {
     try {
       // Change this line in both analyzeFood and generateWorkout:
