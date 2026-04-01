@@ -1,44 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Не забудь добавить пакет в pubspec.yaml
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
 
 class SetupScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
-
   const SetupScreen({super.key, this.onThemeToggle});
 
   @override
   State<SetupScreen> createState() => _SetupScreenState();
 }
 
+await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+  'username': _nameController.text.trim(), // Добавь это
+  'email': _emailController.text.trim(),
+  'weight': _weightController.text,
+  'height': _heightController.text,
+  'createdAt': FieldValue.serverTimestamp(),
+});
+
 class _SetupScreenState extends State<SetupScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController(); // Для пароля
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
+  
+  bool _isLoading = false;
 
-  // Функция сохранения данных
   Future<void> _saveAndContinue() async {
-    // 1. Валидация
-    if (_weightController.text.isEmpty || _heightController.text.isEmpty) {
+    // 1. Валидация полей
+    if (_emailController.text.isEmpty || 
+        _passwordController.text.length < 6 || 
+        _weightController.text.isEmpty || 
+        _heightController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter your weight and height")),
+        const SnackBar(content: Text("Заполните всё! Пароль минимум 6 символов.")),
       );
       return;
     }
 
-    // 2. Сохранение в память телефона
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_email', _emailController.text);
-    await prefs.setString('user_weight', _weightController.text);
-    await prefs.setString('user_height', _heightController.text);
-    await prefs.setBool('is_setup_complete', true); 
+    setState(() => _isLoading = true);
 
-    
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()), 
-    );
+    try {
+      // 2. Создание пользователя в Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // 3. Сохранение веса и роста в Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'email': _emailController.text.trim(),
+        'weight': _weightController.text,
+        'height': _heightController.text,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // 4. Локальное сохранение (SharedPreferences)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_email', _emailController.text);
+      await prefs.setBool('is_setup_complete', true);
+
+      if (!mounted) return;
+      
+      // Переход на главный экран
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+
+    } on FirebaseAuthException catch (e) {
+      String message = "Ошибка";
+      if (e.code == 'email-already-in-use') message = "Этот Email уже занят";
+      if (e.code == 'weak-password') message = "Слишком слабый пароль";
+      
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Ошибка сервера")));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -48,12 +91,8 @@ class _SetupScreenState extends State<SetupScreen> {
       appBar: AppBar(
         title: const Text("AuraFit AI"),
         backgroundColor: Colors.transparent,
-        elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.brightness_6),
-            onPressed: widget.onThemeToggle,
-          ),
+          IconButton(icon: const Icon(Icons.brightness_6), onPressed: widget.onThemeToggle),
         ],
       ),
       body: Padding(
@@ -61,16 +100,15 @@ class _SetupScreenState extends State<SetupScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 20),
-              const Text(
-                "Create Your Profile",
-                style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              const Text("This helps the AI personalize your plan", style: TextStyle(color: Colors.grey)),
+              const Text("Create Your Profile", 
+                style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
               const SizedBox(height: 40),
 
               _buildTextField(_emailController, "Email", Icons.email_outlined, false),
+              const SizedBox(height: 16),
+              
+              // НОВОЕ ПОЛЕ: ПАРОЛЬ
+              _buildTextField(_passwordController, "Password", Icons.lock_outline, false, isPassword: true),
               const SizedBox(height: 16),
               
               Row(
@@ -86,12 +124,13 @@ class _SetupScreenState extends State<SetupScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 55),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
-                onPressed: _saveAndContinue,
-                child: const Text("Continue", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                onPressed: _isLoading ? null : _saveAndContinue,
+                child: _isLoading 
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text("Continue", style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ],
           ),
@@ -100,9 +139,10 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool isNumber) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, bool isNumber, {bool isPassword = false}) {
     return TextField(
       controller: controller,
+      obscureText: isPassword,
       keyboardType: isNumber ? TextInputType.number : TextInputType.emailAddress,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(

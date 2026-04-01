@@ -4,6 +4,10 @@ import '../widgets/feature_card.dart';
 import '../widgets/progress_card.dart';
 import 'camera_screen.dart';
 import 'plan_screen.dart'; 
+import 'profile_screen.dart';
+import 'schedule_screen.dart';
+import 'nutrition_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -43,7 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle_outlined, size: 28, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              // --- ТЕПЕРЬ КНОПКА ВЕДЕТ В ПРОФИЛЬ ---
+              _navigateTo(context, const ProfileScreen());
+            },
           ),
         ],
       ),
@@ -92,24 +99,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icons.bolt_rounded,
                     onTap: () => _navigateTo(context, const PlanScreen()),
                   ),
-                  // Заглушки для функций, которые в разработке
+                  // --- ТЕПЕРЬ ЭТИ КАРТОЧКИ РАБОТАЮТ ---
                   FeatureCard(
                     title: "Schedule",
                     icon: Icons.calendar_today_rounded,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Schedule coming soon!")),
-                      );
-                    },
+                    onTap: () => _navigateTo(context, const ScheduleScreen()),
                   ),
                   FeatureCard(
                     title: "Nutrition",
                     icon: Icons.restaurant_rounded,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Nutrition tracking coming soon!")),
-                      );
-                    },
+                    onTap: () => _navigateTo(context, const NutritionScreen()),
                   ),
                 ],
               ),
