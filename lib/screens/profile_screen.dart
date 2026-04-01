@@ -12,29 +12,23 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final User? user = FirebaseAuth.instance.currentUser;
-  
-  // Контроллеры для редактирования
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
-
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadData();
   }
 
-  // Загружаем текущие данные из Firestore
-  Future<void> _loadUserData() async {
+  Future<void> _loadData() async {
     if (user != null) {
       final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
       if (doc.exists) {
         setState(() {
           _nameController.text = doc.data()?['username'] ?? "";
-          _emailController.text = user!.email ?? "";
           _weightController.text = doc.data()?['weight'] ?? "";
           _heightController.text = doc.data()?['height'] ?? "";
           _isLoading = false;
@@ -43,112 +37,135 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Функция сохранения обновлений
-  Future<void> _updateProfile() async {
-    setState(() => _isLoading = true);
-    try {
-      // 1. Обновляем почту в Firebase Auth (если она изменилась)
-      if (_emailController.text != user!.email) {
-        await user!.updateEmail(_emailController.text.trim());
-      }
-
-      // 2. Обновляем данные в Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
-        'username': _nameController.text.trim(),
-        'weight': _weightController.text.trim(),
-        'height': _heightController.text.trim(),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Профиль успешно обновлен!")),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Ошибка: ${e.toString()}")),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
-        title: const Text("Edit Profile"),
+        elevation: 0,
         backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check, color: Colors.greenAccent),
-            onPressed: _updateProfile,
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.deepPurpleAccent,
-              child: Icon(Icons.edit, color: Colors.white),
-            ),
-            const SizedBox(height: 30),
-            
-            _buildEditField(_nameController, "Username", Icons.person_outline),
-            const SizedBox(height: 16),
-            _buildEditField(_emailController, "Email", Icons.email_outlined),
-            const SizedBox(height: 16),
-            
-            Row(
-              children: [
-                Expanded(child: _buildEditField(_weightController, "Weight (kg)", Icons.monitor_weight_outlined, isNumber: true)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildEditField(_heightController, "Height (cm)", Icons.height, isNumber: true)),
-              ],
-            ),
-            
-            const SizedBox(height: 40),
-            
-            ElevatedButton(
-              onPressed: _updateProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("Save Changes", style: TextStyle(color: Colors.white)),
-            ),
-            
-            TextButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SetupScreen()), (route) => false);
-              },
-              child: const Text("Logout", style: TextStyle(color: Colors.redAccent)),
-            )
-          ],
+        title: const Text(
+          "PRO-FILE", 
+          style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900) // Исправлено здесь
         ),
+        centerTitle: true,
       ),
+      body: _isLoading 
+          ? const Center(child: CircularProgressIndicator(color: Colors.deepPurpleAccent))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  // Стильный статичный аватар
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: Colors.deepPurpleAccent, blurRadius: 20, spreadRadius: -5)
+                        ],
+                        gradient: LinearGradient(colors: [Colors.deepPurpleAccent, Colors.cyanAccent]),
+                      ),
+                      child: const CircleAvatar(
+                        radius: 55,
+                        backgroundColor: Color(0xFF1A1A23),
+                        child: Icon(Icons.bolt, size: 50, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Блоки данных
+                  _buildGlassField(_nameController, "NICKNAME", Icons.person_outline),
+                  const SizedBox(height: 20),
+                  
+                  Row(
+                    children: [
+                      Expanded(child: _buildGlassField(_weightController, "WEIGHT", Icons.fitness_center)),
+                      const SizedBox(width: 15),
+                      Expanded(child: _buildGlassField(_heightController, "HEIGHT", Icons.straighten)),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 40),
+
+                  // Кнопка сохранения
+                  GestureDetector(
+                    onTap: () async {
+                      await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
+                        'username': _nameController.text,
+                        'weight': _weightController.text,
+                        'height': _heightController.text,
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Profile Synced ⚡"),
+                          backgroundColor: Colors.deepPurpleAccent,
+                        )
+                      );
+                    },
+                    child: Container(
+                      height: 55,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        gradient: const LinearGradient(colors: [Colors.deepPurpleAccent, Colors.purple]),
+                        boxShadow: [
+                          BoxShadow(color: Colors.purple.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text("UPDATE DATA", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+                  
+                  // Кнопка выхода
+                  TextButton(
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SetupScreen()), (route) => false);
+                    },
+                    child: Text(
+                      "SIGN OUT", 
+                      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12, letterSpacing: 1)
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
-  Widget _buildEditField(TextEditingController controller, String label, IconData icon, {bool isNumber = false}) {
-    return TextField(
-      controller: controller,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: Icon(icon, color: Colors.deepPurpleAccent),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      ),
+  Widget _buildGlassField(TextEditingController ctrl, String label, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label, 
+          style: const TextStyle(color: Colors.deepPurpleAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          child: TextField(
+            controller: ctrl,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, color: Colors.white38, size: 20),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 15),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
