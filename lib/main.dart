@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/setup_screen.dart';
+import 'screens/home_screen.dart';
 
-void main() {
-  runApp(const AuraFitApp());
+void main() async {
+  // 1. Инициализация для работы с памятью до запуска UI
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 2. Проверяем, был ли уже выполнен вход
+  final prefs = await SharedPreferences.getInstance();
+  final bool isSetupComplete = prefs.getBool('is_setup_complete') ?? false;
+
+  runApp(AuraFitApp(isSetupComplete: isSetupComplete));
 }
 
 class AuraFitApp extends StatefulWidget {
-  const AuraFitApp({super.key});
+  final bool isSetupComplete;
+  const AuraFitApp({super.key, required this.isSetupComplete});
 
   @override
   State<AuraFitApp> createState() => _AuraFitAppState();
 }
 
 class _AuraFitAppState extends State<AuraFitApp> {
- 
-  ThemeMode _themeMode = ThemeMode.light;
+  // Твоя логика переключения темы
+  ThemeMode _themeMode = ThemeMode.dark; // Поставим dark по умолчанию для стиля Aura
 
   void _toggleTheme() {
     setState(() {
@@ -27,20 +37,25 @@ class _AuraFitAppState extends State<AuraFitApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "AuraFit AI",
-      // Define Light Theme
+      
+      // Настройки твоих тем
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
       ),
-      // Define Dark Theme
       darkTheme: ThemeData(
         brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF0F0F13), // Наш темный фон
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
       ),
-      themeMode: _themeMode, // This tells the app which theme to show
-      home: SetupScreen(onThemeToggle: _toggleTheme),
+      themeMode: _themeMode,
+
+      // 3. Умный выбор домашнего экрана
+      home: widget.isSetupComplete 
+          ? const HomeScreen() 
+          : SetupScreen(onThemeToggle: _toggleTheme),
     );
   }
 }

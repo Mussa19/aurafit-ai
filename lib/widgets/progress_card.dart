@@ -1,48 +1,40 @@
 import 'package:flutter/material.dart';
 
 class ProgressCard extends StatelessWidget {
-  final String title;
-  final String value;
+  final String calories;
+  final String workouts;
 
-  const ProgressCard({
-    super.key,
-    required this.title,
-    required this.value,
-  });
+  const ProgressCard({super.key, required this.calories, required this.workouts});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 5,
-          )
-        ],
+        border: Border.all(color: Colors.white10),
       ),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text(
-            title,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
-            ),
-          ),
+          _buildStat("Calories", calories, Icons.local_fire_department, Colors.orange),
+          Container(width: 1, height: 30, color: Colors.white10),
+          _buildStat("Workouts", workouts, Icons.fitness_center, Colors.blueAccent),
         ],
       ),
+    );
+  }
+
+  Widget _buildStat(String label, String value, IconData icon, Color color) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+      ],
     );
   }
 }

@@ -1,43 +1,104 @@
 import 'package:flutter/material.dart';
-import '../models/workout_model.dart'; // Import your new model
+// Удалили импорты exercise_card.dart и api_service.dart, так как они вызывают ошибки
 
-class PlanScreen extends StatelessWidget {
+class PlanScreen extends StatefulWidget {
   const PlanScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Now using the Model Class instead of a Map!
-    final List<WorkoutExercise> workoutPlan = [
-      WorkoutExercise(name: "Push Ups", sets: 3, reps: "15"),
-      WorkoutExercise(name: "Bench Press", sets: 4, reps: "10"),
-      WorkoutExercise(name: "Dumbbell Flyes", sets: 3, reps: "12"),
-      WorkoutExercise(name: "Plank", sets: 3, reps: "60 sec"),
-    ];
+  State<PlanScreen> createState() => _PlanScreenState();
+}
 
+class _PlanScreenState extends State<PlanScreen> {
+  late Future<List<dynamic>> _workoutPlan;
+
+  @override
+  void initState() {
+    super.initState();
+    _workoutPlan = _fetchAIPlan();
+  }
+
+  Future<List<dynamic>> _fetchAIPlan() async {
+    // Симуляция запроса к AI (пока твой APIService не готов)
+    await Future.delayed(const Duration(seconds: 2)); 
+    return [
+      {"title": "Push Ups (AI Custom)", "subtitle": "3 Sets x 15"},
+      {"title": "Bench Press", "subtitle": "4 Sets x 10"},
+      {"title": "Dumbbell Flyes", "subtitle": "3 Sets x 12"},
+      {"title": "Plank", "subtitle": "3 Sets x 60 sec"},
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
-        title: const Text("AI Workout Plan"),
+        title: const Text("AI Workout Plan", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _workoutPlan = _fetchAIPlan();
+              });
+            },
+          )
+        ],
       ),
-      body: ListView.builder(
-        itemCount: workoutPlan.length,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        itemBuilder: (context, index) {
-          final exercise = workoutPlan[index]; // Reference the object
-          
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              leading: const Icon(Icons.fitness_center, color: Colors.deepPurple),
-              title: Text(exercise.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("${exercise.sets} Sets x ${exercise.reps}"),
-              trailing: Icon(
-                exercise.isCompleted ? Icons.check_circle : Icons.circle_outlined,
-                color: exercise.isCompleted ? Colors.green : Colors.grey,
+      body: FutureBuilder<List<dynamic>>(
+        future: _workoutPlan,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: Colors.deepPurpleAccent),
+                  SizedBox(height: 20),
+                  Text("AI is crafting your plan...", style: TextStyle(color: Colors.white70)),
+                ],
               ),
-            ),
-          );
+            );
+          } else if (snapshot.hasError) {
+            return const Center(child: Text("Error loading plan", style: TextStyle(color: Colors.red)));
+          } else {
+            final exercises = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: exercises.length,
+              itemBuilder: (context, index) {
+                final item = exercises[index];
+                // Используем стандартный ListTile вместо отсутствующего ExerciseCard
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    leading: const CircleAvatar(
+                      backgroundColor: Colors.deepPurpleAccent,
+                      child: Icon(Icons.fitness_center, color: Colors.white, size: 20),
+                    ),
+                    title: Text(
+                      item['title'],
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      item['subtitle'],
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    trailing: const Icon(Icons.check_circle_outline, color: Colors.white24),
+                  ),
+                );
+              },
+            );
+          }
         },
       ),
     );

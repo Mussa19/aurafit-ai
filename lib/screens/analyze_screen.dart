@@ -2,68 +2,116 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
 class AnalyzeScreen extends StatelessWidget {
-  final String result; 
+  final dynamic result; // Теперь принимает либо строку, либо Map
+  final bool isBody;    // Флаг: анализ тела или еды
 
-  const AnalyzeScreen({super.key, required this.result});
+  const AnalyzeScreen({
+    super.key, 
+    required this.result, 
+    this.isBody = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0F0F13), // Наш фирменный темный
       appBar: AppBar(
-        title: const Text("AI Analysis"),
+        title: const Text("AI Insights"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView( // 👈 Added scrolling for long results
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-              const Icon(Icons.analytics_outlined, size: 80, color: Colors.blue),
-              const SizedBox(height: 20),
-              const Text(
-                "Result:",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            // --- HEADER ICON ---
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: (isBody ? Colors.blue : Colors.orange).withOpacity(0.1),
               ),
-              const SizedBox(height: 20),
-              
-              // 📦 Styled box for the AI text
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Text(
-                  result, 
-                  style: const TextStyle(fontSize: 18, height: 1.5),
-                  textAlign: TextAlign.left, // Left-aligned looks better for lists
-                ),
+              child: Icon(
+                isBody ? Icons.accessibility_new_rounded : Icons.fastfood_rounded,
+                size: 60,
+                color: isBody ? Colors.blueAccent : Colors.orangeAccent,
               ),
+            ),
+            const SizedBox(height: 24),
+            
+            Text(
+              isBody ? "Body Composition" : "Nutrition Detected",
+              style: const TextStyle(
+                color: Colors.white, 
+                fontSize: 24, 
+                fontWeight: FontWeight.bold
+              ),
+            ),
+            const SizedBox(height: 30),
 
-              const SizedBox(height: 40),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            // --- RESULT CARD ---
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.auto_awesome, color: Colors.purpleAccent[100], size: 20),
+                      const SizedBox(width: 8),
+                      const Text(
+                        "AI ANALYSIS",
+                        style: TextStyle(color: Colors.grey, letterSpacing: 1.2, fontSize: 12),
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomeScreen()),
-                    );
-                  },
-                  child: const Text("Go to Dashboard", style: TextStyle(fontSize: 16)),
-                ),
+                  const Divider(height: 30, color: Colors.white10),
+                  Text(
+                    result.toString(),
+                    style: const TextStyle(
+                      color: Colors.white, 
+                      fontSize: 18, 
+                      height: 1.6,
+                      fontWeight: FontWeight.w400
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // --- ACTIONS ---
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 55),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                elevation: 0,
+              ),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  (route) => false, // Очищаем историю навигации
+                );
+              },
+              child: const Text("Done", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Retake Photo", style: TextStyle(color: Colors.grey)),
+            ),
+          ],
         ),
       ),
     );

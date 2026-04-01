@@ -1,26 +1,28 @@
 name: aurafit_ai
 description: "A new Flutter project."
 publish_to: 'none'
-
 version: 1.0.0+1
 
+# 1. Сначала окружение
 environment:
-  sdk: ^3.10.8
+  sdk: '>=3.10.8 <4.0.0'
 
+# 2. ОДИН блок зависимостей для всех пакетов
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  shared_preferences: ^2.2.2
   image_picker: ^1.0.4
   http: ^1.1.0
   google_generative_ai: ^0.4.0
 
+# 3. Блок для разработки
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^3.0.0 # Вернул стабильную версию линтов
 
-  flutter_lints: ^6.0.0
-
+# 4. Настройки Flutter
 flutter:
   uses-material-design: true
-  
