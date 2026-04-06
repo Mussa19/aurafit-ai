@@ -1,16 +1,15 @@
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
     id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.example.aurafit_ai"
-    compileSdk = flutter.compileSdkVersion
+    // Прямо указываем версию 34, чтобы убить ошибку 25.0.2
+    compileSdk = 34
+    buildToolsVersion = "34.0.0" 
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -23,20 +22,17 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.aurafit_ai"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // Минимальная версия для работы Firebase и современных библиотек
+        minSdk = flutter.minSdkVersion 
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Для теста используем debug-ключи, чтобы билд прошел без настройки сертификатов
             signingConfig = signingConfigs.getByName("debug")
         }
     }
