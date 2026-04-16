@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:typed_data'; 
 import '../services/ai_service.dart';
 import 'analyze_screen.dart';
 
 class CameraScreen extends StatefulWidget {
-  const CameraScreen({super.key});
+  final VoidCallback onThemeToggle; // Добавлено
+  const CameraScreen({super.key, required this.onThemeToggle});
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -16,96 +17,83 @@ class _CameraScreenState extends State<CameraScreen> {
   bool isLoading = false;
   final ImagePicker picker = ImagePicker();
 
-  
   Future<void> _captureAndAnalyze() async {
-    
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    
     if (image == null) return;
 
     setState(() => isLoading = true);
 
     try {
-      final File imageFile = File(image.path);
-      String result;
-
+      final Uint8List imageBytes = await image.readAsBytes();
       
-      if (isBodyMode) {
-        
-        result = "AI Body Analysis: Posture is 85% aligned. Slight tilt detected in left shoulder. Suggested: Lateral raises.";
-      } else {
-        
-        result = await AiService.analyzeFood(imageFile);
-      }
+      String result = await AiService.analyzeImage(
+        imageBytes, 
+        isBodyMode ? "body" : "food"
+      );
 
-      
       if (!mounted) return;
+      
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => AnalyzeScreen(result: result, isBody: isBodyMode),
+          builder: (_) => AnalyzeScreen(
+            result: result, 
+            isBody: isBodyMode,
+            onThemeToggle: widget.onThemeToggle, // Передаем функцию темы
+          ),
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("AI Error: ${e.toString()}")),
+        SnackBar(content: Text("Ошибка: ${e.toString()}"), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0F0F13),
       body: Stack(
         children: [
-          
           Center(
             child: isLoading 
               ? const CircularProgressIndicator(color: Colors.deepPurpleAccent)
-              : const Icon(Icons.camera_alt, color: Colors.white24, size: 100),
+              : const Icon(Icons.camera_alt, color: Colors.white12, size: 100),
           ),
-
-          
           if (!isLoading) Center(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              width: isBodyMode ? 250 : 300,
-              height: isBodyMode ? 500 : 300,
+              width: isBodyMode ? 260 : 300,
+              height: isBodyMode ? 520 : 300,
               decoration: BoxDecoration(
-                border: Border.all(color: isBodyMode ? Colors.blueAccent : Colors.orangeAccent, width: 2),
-                borderRadius: BorderRadius.circular(isBodyMode ? 125 : 20),
+                border: Border.all(
+                  color: isBodyMode ? Colors.cyanAccent : Colors.orangeAccent, 
+                  width: 2
+                ),
+                borderRadius: BorderRadius.circular(isBodyMode ? 130 : 30),
               ),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    isBodyMode ? "Align your body" : "Place food inside",
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
+              child: Center(
+                child: Text(
+                  isBodyMode ? "ALIGN BODY" : "PLACE FOOD",
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
           ),
-
-          
           Positioned(
-            top: 40,
+            top: 50,
             left: 20,
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 30),
               onPressed: () => Navigator.pop(context),
             ),
           ),
-
-          
           Positioned(
-            bottom: 40,
+            bottom: 60,
             left: 0,
             right: 0,
             child: Column(
@@ -114,36 +102,31 @@ class _CameraScreenState extends State<CameraScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildModeButton("FOOD", !isBodyMode),
-                    const SizedBox(width: 30),
+                    const SizedBox(width: 40),
                     _buildModeButton("BODY", isBodyMode),
                   ],
                 ),
-                const SizedBox(height: 30),
-                
-                // Кнопка затвора
+                const SizedBox(height: 35),
                 GestureDetector(
                   onTap: isLoading ? null : _captureAndAnalyze,
                   child: Container(
-                    height: 85,
-                    width: 85,
+                    height: 80,
+                    width: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 4),
                     ),
                     child: Center(
                       child: Container(
-                        height: 65,
-                        width: 65,
+                        height: 60,
+                        width: 60,
                         decoration: BoxDecoration(
-                          color: isLoading ? Colors.grey : Colors.white, 
+                          color: isLoading ? Colors.transparent : Colors.white, 
                           shape: BoxShape.circle
                         ),
                         child: isLoading 
-                          ? const Padding(
-                              padding: EdgeInsets.all(15.0),
-                              child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black),
-                            ) 
-                          : null,
+                          ? const CircularProgressIndicator(color: Colors.white) 
+                          : const Icon(Icons.photo_library, color: Colors.black),
                       ),
                     ),
                   ),
@@ -159,18 +142,13 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget _buildModeButton(String label, bool isActive) {
     return GestureDetector(
       onTap: () => setState(() => isBodyMode = label == "BODY"),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: isActive ? Colors.white : Colors.white38,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          if (isActive) Container(height: 2, width: 20, color: Colors.deepPurpleAccent, margin: const EdgeInsets.only(top: 4)),
-        ],
+      child: Text(
+        label,
+        style: TextStyle(
+          color: isActive ? Colors.white : Colors.white38,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
       ),
     );
   }

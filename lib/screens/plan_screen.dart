@@ -11,6 +11,8 @@ class PlanScreen extends StatefulWidget {
 
 class _PlanScreenState extends State<PlanScreen> {
   late Future<List<Map<String, String>>> _workoutPlan;
+  String currentWeight = "";
+  String currentHeight = "";
 
   @override
   void initState() {
@@ -18,41 +20,52 @@ class _PlanScreenState extends State<PlanScreen> {
     _workoutPlan = _loadDataAndFetchPlan();
   }
 
-  // Загрузка данных профиля и запрос к Gemini
   Future<List<Map<String, String>>> _loadDataAndFetchPlan() async {
     final prefs = await SharedPreferences.getInstance();
-    // Берем те самые 80кг и 185см из памяти
+    
     final weight = prefs.getString('user_weight') ?? "70";
     final height = prefs.getString('user_height') ?? "175";
-
-    final aiResponse = await AiService.generateWorkout(
-      weight: weight,
-      height: height,
-    );
-
-    List<Map<String, String>> plan = [];
-    final lines = aiResponse.split('\n');
     
-    for (var line in lines) {
-      // Ищем строки формата "Упражнение: Подходы х Повторения"
-      if (line.contains(':') || line.contains(' - ')) {
-        final parts = line.split(RegExp(r'[:\-]'));
-        if (parts.length >= 2) {
-          plan.add({
-            "title": parts[0].trim().replaceAll('*', '').replaceAll(RegExp(r'^\d+\.\s*'), ''),
-            "subtitle": parts[1].trim(),
-          });
+    if (mounted) {
+      setState(() {
+        currentWeight = weight;
+        currentHeight = height;
+      });
+    }
+
+    try {
+      final aiResponse = await AiService.generateSchedule(
+        weight: weight,
+        height: height,
+      );
+
+      List<Map<String, String>> plan = [];
+      final lines = aiResponse.split('\n');
+      
+      for (var line in lines) {
+        if (line.contains(':') || line.contains(' — ') || line.contains(' - ')) {
+          final cleanLine = line.replaceAll('*', '').replaceAll(RegExp(r'^\d+\.\s*'), '').trim();
+          
+          final separator = cleanLine.contains(':') ? ':' : (cleanLine.contains(' — ') ? ' — ' : ' - ');
+          final parts = cleanLine.split(separator);
+          
+          if (parts.length >= 2) {
+            plan.add({
+              "title": parts[0].trim(),
+              "subtitle": parts[1].trim(),
+            });
+          }
         }
       }
-    }
 
-    if (plan.isEmpty) {
-      return [
-        {"title": "Personalized AI Plan", "subtitle": "Focusing on $weight kg weight"},
-        {"title": "Note", "subtitle": "Try refreshing for a detailed list"},
-      ];
+      if (plan.isEmpty && aiResponse.isNotEmpty) {
+        return [{"title": "Ваш план готов", "subtitle": aiResponse}];
+      }
+      
+      return plan;
+    } catch (e) {
+      throw Exception("Failed to fetch plan");
     }
-    return plan;
   }
 
   @override
@@ -60,12 +73,13 @@ class _PlanScreenState extends State<PlanScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
-        title: const Text("AI Personalized Plan", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
+        title: const Text("AI Personalized Plan", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
               setState(() {
                 _workoutPlan = _loadDataAndFetchPlan();
@@ -78,42 +92,72 @@ class _PlanScreenState extends State<PlanScreen> {
         future: _workoutPlan,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: Colors.deepPurpleAccent),
-                  SizedBox(height: 20),
-                  Text("AI is analyzing your 80kg / 185cm profile...", 
-                    style: TextStyle(color: Colors.white70)),
+                  const CircularProgressIndicator(color: Colors.deepPurpleAccent),
+                  const SizedBox(height: 20),
+                  Text(
+                    "AuraFit AI анализирует профиль: $currentWeight кг / $currentHeight см...", 
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
                 ],
               ),
             );
           } else if (snapshot.hasError) {
-            return const Center(child: Text("Connection Error", style: TextStyle(color: Colors.red)));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.redAccent, size: 40),
+                  const SizedBox(height: 10),
+                  const Text("Ошибка соединения", style: TextStyle(color: Colors.white)),
+                  TextButton(
+                    onPressed: () => setState(() => _workoutPlan = _loadDataAndFetchPlan()), 
+                    child: const Text("Повторить")
+                  )
+                ],
+              ),
+            );
           } else {
             final exercises = snapshot.data ?? [];
             return ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               itemCount: exercises.length,
               itemBuilder: (context, index) {
                 final item = exercises[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.only(bottom: 15),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.white10),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.08), 
+                        Colors.white.withValues(alpha: 0.02)
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                   ),
                   child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.deepPurpleAccent,
-                      child: Icon(Icons.fitness_center, color: Colors.white, size: 20),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.fitness_center_rounded, color: Colors.deepPurpleAccent, size: 24),
                     ),
                     title: Text(item['title']!, 
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    subtitle: Text(item['subtitle']!, 
-                      style: const TextStyle(color: Colors.white70)),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(item['subtitle']!, 
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 14)),
+                    ),
                   ),
                 );
               },

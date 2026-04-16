@@ -1,152 +1,144 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'setup_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback onThemeToggle;
+  const ProfileScreen({super.key, required this.onThemeToggle});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final User? user = FirebaseAuth.instance.currentUser;
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
-  bool _isLoading = true;
+  Map<String, String> userData = {};
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadUserData();
   }
 
-  Future<void> _loadData() async {
-    if (user != null) {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
-      if (doc.exists) {
+  Future<void> _loadUserData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (mounted) {
         setState(() {
-          _nameController.text = doc.data()?['username'] ?? "";
-          _weightController.text = doc.data()?['weight'] ?? "";
-          _heightController.text = doc.data()?['height'] ?? "";
-          _isLoading = false;
+          userData = {
+            'name': prefs.getString('user_name') ?? 'User',
+            'goal': prefs.getString('user_goal') ?? 'Fitness',
+            'weight': prefs.getString('user_weight') ?? '70',
+            'height': prefs.getString('user_height') ?? '175',
+          };
+          isLoading = false;
         });
       }
+    } catch (e) {
+      debugPrint("Error loading profile: $e");
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0F0F13),
+        body: Center(child: CircularProgressIndicator(color: Colors.deepPurpleAccent)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
-        elevation: 0,
+        title: const Text("PRO-FILE", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 2)),
         backgroundColor: Colors.transparent,
-        title: const Text("PRO-FILE", style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.w900)),
-        centerTitle: true,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.brightness_6),
+            onPressed: widget.onThemeToggle,
+          ),
+        ],
       ),
-      body: _isLoading 
-          ? const Center(child: CircularProgressIndicator(color: Colors.deepPurpleAccent))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Colors.deepPurpleAccent, blurRadius: 20, spreadRadius: -5)],
-                        gradient: LinearGradient(colors: [Colors.deepPurpleAccent, Colors.cyanAccent]),
-                      ),
-                      child: const CircleAvatar(
-                        radius: 55,
-                        backgroundColor: Color(0xFF1A1A23),
-                        child: Icon(Icons.bolt, size: 50, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  _buildGlassField(_nameController, "NICKNAME", Icons.person_outline),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(child: _buildGlassField(_weightController, "WEIGHT", Icons.fitness_center)),
-                      const SizedBox(width: 15),
-                      Expanded(child: _buildGlassField(_heightController, "HEIGHT", Icons.straighten)),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-                  GestureDetector(
-                    onTap: () async {
-                      // Сохранение в Firebase
-                      await FirebaseFirestore.instance.collection('users').doc(user!.uid).update({
-                        'username': _nameController.text,
-                        'weight': _weightController.text,
-                        'height': _heightController.text,
-                      });
-                      
-                      // Сохранение локально для HomeScreen
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setString('user_weight', _weightController.text);
-
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Profile Synced ⚡"), backgroundColor: Colors.deepPurpleAccent)
-                      );
-                    },
-                    child: Container(
-                      height: 55,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        gradient: const LinearGradient(colors: [Colors.deepPurpleAccent, Colors.purple]),
-                      ),
-                      child: const Center(child: Text("UPDATE DATA", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  TextButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      if (!mounted) return;
-                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const SetupScreen()), (route) => false);
-                    },
-                    child: Text("SIGN OUT", style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12)),
-                  ),
-                ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.deepPurpleAccent,
+              child: Icon(Icons.person, size: 50, color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            
+            _buildInfoCard("Name", userData['name'] ?? 'User'),
+            _buildInfoCard("Goal", userData['goal'] ?? 'Fitness'),
+            
+            Row(
+              children: [
+                Expanded(child: _buildInfoCard("Weight", "${userData['weight']} kg")),
+                const SizedBox(width: 10),
+                Expanded(child: _buildInfoCard("Height", "${userData['height']} cm")),
+              ],
+            ),
+            
+            const SizedBox(height: 30),
+            
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  // ИСПРАВЛЕНО: с .withOpacity на .withValues
+                  backgroundColor: Colors.redAccent.withValues(alpha: 0.8),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+                onPressed: () async {
+                  // Очищаем Firebase Auth
+                  await FirebaseAuth.instance.signOut();
+                  // Очищаем локальные данные
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear();
+                  
+                  if (!mounted) return;
+                  
+                  // Возвращаем на SetupScreen и очищаем историю навигации
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => SetupScreen(onThemeToggle: widget.onThemeToggle)),
+                    (route) => false,
+                  );
+                },
+                child: const Text("LOG OUT", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildGlassField(TextEditingController ctrl, String label, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(color: Colors.deepPurpleAccent, fontSize: 10, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
-          ),
-          child: TextField(
-            controller: ctrl,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-            decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: Colors.white38, size: 20),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 15),
-            ),
-          ),
-        ),
-      ],
+  Widget _buildInfoCard(String label, String value) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A23),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+          const SizedBox(height: 5),
+          Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 }

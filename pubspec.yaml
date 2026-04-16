@@ -1,5 +1,5 @@
 name: aurafit_ai
-description: "A new Flutter project."
+description: "AuraFit AI"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -13,11 +13,11 @@ dependencies:
   shared_preferences: ^2.2.2
   image_picker: ^1.2.1
   http: ^1.1.0
-  google_generative_ai: ^0.4.0
-  firebase_auth: ^6.3.0
-  cloud_firestore: ^6.2.0
-  firebase_core: ^4.6.0     
-  flutter_dotenv: ^5.1.0
+  firebase_auth: ^5.1.1
+  cloud_firestore: ^5.0.2
+  firebase_core: ^3.1.1     
+  flutter_dotenv: ^6.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

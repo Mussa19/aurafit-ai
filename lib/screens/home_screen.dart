@@ -11,7 +11,8 @@ import 'schedule_screen.dart';
 import 'nutrition_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback onThemeToggle; 
+  const HomeScreen({super.key, required this.onThemeToggle});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -27,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUserData(); 
   }
 
-  // Загружаем данные из облака, чтобы они совпадали с профилем
   Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -42,27 +42,24 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!mounted) return;
         setState(() {
           userWeight = weight;
-          int weightInt = int.tryParse(weight) ?? 70;
-          dailyCalories = (weightInt * 30).toString(); 
+          double weightNum = double.tryParse(weight) ?? 70.0;
+          dailyCalories = (weightNum * 30).toInt().toString(); 
         });
 
-        // Сохраняем в кэш на всякий случай
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_weight', weight);
       }
     } catch (e) {
-      // Если нет интернета, берем из кэша
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
       setState(() {
         userWeight = prefs.getString('user_weight') ?? "70";
-        int weightInt = int.tryParse(userWeight) ?? 70;
-        dailyCalories = (weightInt * 30).toString();
+        double weightNum = double.tryParse(userWeight) ?? 70.0;
+        dailyCalories = (weightNum * 30).toInt().toString();
       });
     }
   }
 
-  // Ждем возврата из профиля и обновляем данные
   Future<void> _navigateTo(BuildContext context, Widget screen) async {
     await Navigator.push(
       context,
@@ -77,18 +74,20 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
         title: const Text("AuraFit AI", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        centerTitle: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.account_circle_outlined, size: 28, color: Colors.white),
-            onPressed: () => _navigateTo(context, const ProfileScreen()),
+            onPressed: () => _navigateTo(
+              context, 
+              ProfileScreen(onThemeToggle: widget.onThemeToggle),
+            ),
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadUserData, // Позволяет обновить данные, потянув экран вниз
+        onRefresh: _loadUserData,
         color: Colors.deepPurpleAccent,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -103,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const Text(
                 "Your Daily Summary",
-                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 15),
 
@@ -125,12 +124,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 15,
                 mainAxisSpacing: 15,
-                childAspectRatio: 1.0,
                 children: [
                   FeatureCard(
                     title: "Scan Food",
                     icon: Icons.camera_alt_rounded,
-                    onTap: () => _navigateTo(context, const CameraScreen()),
+                    onTap: () => _navigateTo(
+                      context, 
+                      CameraScreen(onThemeToggle: widget.onThemeToggle),
+                    ),
                   ),
                   FeatureCard(
                     title: "Workout Plan",
@@ -145,7 +146,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   FeatureCard(
                     title: "Nutrition",
                     icon: Icons.restaurant_rounded,
-                    onTap: () => _navigateTo(context, const NutritionScreen()),
+                    onTap: () => _navigateTo(
+                      context, 
+                      NutritionScreen(onThemeToggle: widget.onThemeToggle), // ИСПРАВЛЕНО ЗДЕСЬ
+                    ),
                   ),
                 ],
               ),

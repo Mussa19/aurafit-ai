@@ -4,10 +4,12 @@ import 'home_screen.dart';
 class AnalyzeScreen extends StatelessWidget {
   final dynamic result; 
   final bool isBody;    
+  final VoidCallback onThemeToggle; 
 
   const AnalyzeScreen({
     super.key, 
     required this.result, 
+    required this.onThemeToggle,
     this.isBody = false,
   });
 
@@ -25,7 +27,6 @@ class AnalyzeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -39,18 +40,11 @@ class AnalyzeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
             Text(
               isBody ? "Body Composition" : "Nutrition Detected",
-              style: const TextStyle(
-                color: Colors.white, 
-                fontSize: 24, 
-                fontWeight: FontWeight.bold
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
-
-            
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -62,51 +56,41 @@ class AnalyzeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
-                      Icon(Icons.auto_awesome, color: Colors.purpleAccent[100], size: 20),
-                      const SizedBox(width: 8),
-                      const Text(
-                        "AI ANALYSIS",
-                        style: TextStyle(color: Colors.grey, letterSpacing: 1.2, fontSize: 12),
-                      ),
+                      Icon(Icons.auto_awesome, color: Colors.purpleAccent, size: 20),
+                      SizedBox(width: 8),
+                      Text("AI ANALYSIS", style: TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   ),
                   const Divider(height: 30, color: Colors.white10),
                   Text(
                     result.toString(),
-                    style: const TextStyle(
-                      color: Colors.white, 
-                      fontSize: 18, 
-                      height: 1.6,
-                      fontWeight: FontWeight.w400
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 18, height: 1.6),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 40),
-
-            
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 55),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                elevation: 0,
               ),
               onPressed: () {
+                // Возвращаемся на Home, передавая функцию темы
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => HomeScreen(onThemeToggle: onThemeToggle),
+                  ),
                   (route) => false, 
                 );
               },
               child: const Text("Done", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text("Retake Photo", style: TextStyle(color: Colors.grey)),
