@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '944373114575',
     projectId: 'aurafit-6dce7',
     storageBucket: 'aurafit-6dce7.firebasestorage.app',
-    iosBundleId: 'com.example.aurafitAi',
+    iosBundleId: 'kz.konina.aurafit_ai',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '944373114575',
     projectId: 'aurafit-6dce7',
     storageBucket: 'aurafit-6dce7.firebasestorage.app',
-    iosBundleId: 'com.example.aurafitAi',
+    iosBundleId: 'kz.konina.aurafit_ai',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
