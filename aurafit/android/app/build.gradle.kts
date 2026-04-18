@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         applicationId = "kz.konina.aurafit_ai"
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
