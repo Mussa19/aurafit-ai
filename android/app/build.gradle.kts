@@ -1,15 +1,16 @@
 plugins {
-    id("com.android.application")
-    id("com.google.gms.google-services")
-    id("kotlin-android")
-    id("dev.flutter.flutter-gradle-plugin")
+    id("com.android.application") version "8.2.2" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+    id("com.google.gms.google-services") version "4.4.1" apply false
 }
 
 android {
     namespace = "com.example.aurafit_ai"
-    // Прямо указываем версию 34, чтобы убить ошибку 25.0.2
+
+    // Explicitly set SDK version to avoid old build tools issues
     compileSdk = 34
-    buildToolsVersion = "34.0.0" 
+    targetSdk = 34 
+
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -23,16 +24,18 @@ android {
 
     defaultConfig {
         applicationId = "com.example.aurafit_ai"
-        // Минимальная версия для работы Firebase и современных библиотек
-        minSdk = flutter.minSdkVersion 
+
+        // Minimum SDK for Firebase and modern libraries
+        minSdk = flutter.minSdkVersion
         targetSdk = 34
+
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            // Для теста используем debug-ключи, чтобы билд прошел без настройки сертификатов
+            // Using debug signing for testing (not for production)
             signingConfig = signingConfigs.getByName("debug")
         }
     }
