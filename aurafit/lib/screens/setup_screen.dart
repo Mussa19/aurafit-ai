@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
+import 'login_screen.dart';
 
 class SetupScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
@@ -151,6 +152,24 @@ class _SetupScreenState extends State<SetupScreen> {
                   : const Text("Get Started", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account?",
+                      style: TextStyle(color: Colors.white60)),
+                  TextButton(
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LoginScreen(onThemeToggle: widget.onThemeToggle),
+                      ),
+                    ),
+                    child: const Text("Log In",
+                        style: TextStyle(color: Colors.deepPurpleAccent)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
             ],
           ),
         ),
