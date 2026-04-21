@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "944373114575",
+    "project_id": "aurafit-6dce7",
+    "storage_bucket": "aurafit-6dce7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944373114575:android:a9fb68af91b65336fe79ba",
+        "android_client_info": {
+          "package_name": "com.example.aurafit_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI6alttvp76JYBhv1pOKYSusn1scsaDHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
