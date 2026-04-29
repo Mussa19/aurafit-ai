@@ -1,17 +1,20 @@
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../widgets/aurafit_logo.dart';
 import '../widgets/feature_card.dart';
 import '../widgets/progress_card.dart';
 import 'camera_screen.dart';
-import 'plan_screen.dart'; 
+import 'nutrition_screen.dart';
+import 'plan_screen.dart';
 import 'profile_screen.dart';
 import 'schedule_screen.dart';
-import 'nutrition_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final VoidCallback onThemeToggle; 
+  final VoidCallback onThemeToggle;
+
   const HomeScreen({super.key, required this.onThemeToggle});
 
   @override
@@ -19,13 +22,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String userWeight = "--"; 
-  String dailyCalories = "0"; 
+  String userWeight = '--';
+  String dailyCalories = '0';
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); 
+    _loadUserData();
   }
 
   Future<void> _loadUserData() async {
@@ -34,27 +37,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      
+
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        String weight = data['weight']?.toString() ?? "70";
+        final weight = data['weight']?.toString() ?? '70';
 
         if (!mounted) return;
+
         setState(() {
           userWeight = weight;
-          double weightNum = double.tryParse(weight) ?? 70.0;
-          dailyCalories = (weightNum * 30).toInt().toString(); 
+          final weightNum = double.tryParse(weight) ?? 70.0;
+          dailyCalories = (weightNum * 30).toInt().toString();
         });
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_weight', weight);
       }
-    } catch (e) {
+    } catch (_) {
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
+
       setState(() {
-        userWeight = prefs.getString('user_weight') ?? "70";
-        double weightNum = double.tryParse(userWeight) ?? 70.0;
+        userWeight = prefs.getString('user_weight') ?? '70';
+        final weightNum = double.tryParse(userWeight) ?? 70.0;
         dailyCalories = (weightNum * 30).toInt().toString();
       });
     }
@@ -65,22 +70,33 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (_) => screen),
     );
-    _loadUserData(); 
+    _loadUserData();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
-        title: const Text("AuraFit AI", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AuraFitLogo(size: 34, showWordmark: false),
+            SizedBox(width: 10),
+            Text('AuraFit AI', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle_outlined, size: 28, color: Colors.white),
+            icon: const Icon(Icons.brightness_6_outlined),
+            onPressed: widget.onThemeToggle,
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined, size: 28),
             onPressed: () => _navigateTo(
-              context, 
+              context,
               ProfileScreen(onThemeToggle: widget.onThemeToggle),
             ),
           ),
@@ -88,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadUserData,
-        color: Colors.deepPurpleAccent,
+        color: scheme.primary,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -97,27 +113,28 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const SizedBox(height: 10),
               Text(
-                "Weight: $userWeight kg", 
-                style: const TextStyle(color: Colors.white70, fontSize: 16),
+                'Weight: $userWeight kg',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: scheme.onSurface.withValues(alpha: 0.75),
+                ),
               ),
-              const Text(
-                "Your Daily Summary",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+              Text(
+                'Your Daily Summary',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 15),
-
-              ProgressCard(
-                calories: dailyCalories,
-                workouts: "4",
-              ),
-
+              ProgressCard(calories: dailyCalories, workouts: '4'),
               const SizedBox(height: 30),
-              const Text(
-                "Features",
-                style: TextStyle(color: Colors.white70, fontSize: 18, fontWeight: FontWeight.w500),
+              Text(
+                'Features',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: scheme.onSurface.withValues(alpha: 0.75),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 15),
-
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -126,29 +143,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSpacing: 15,
                 children: [
                   FeatureCard(
-                    title: "Scan Food",
+                    title: 'Scan Food',
                     icon: Icons.camera_alt_rounded,
                     onTap: () => _navigateTo(
-                      context, 
+                      context,
                       CameraScreen(onThemeToggle: widget.onThemeToggle),
                     ),
                   ),
                   FeatureCard(
-                    title: "Workout Plan",
+                    title: 'Workout Plan',
                     icon: Icons.bolt_rounded,
                     onTap: () => _navigateTo(context, const PlanScreen()),
                   ),
                   FeatureCard(
-                    title: "Schedule",
+                    title: 'Schedule',
                     icon: Icons.calendar_today_rounded,
                     onTap: () => _navigateTo(context, const ScheduleScreen()),
                   ),
                   FeatureCard(
-                    title: "Nutrition",
+                    title: 'Nutrition',
                     icon: Icons.restaurant_rounded,
                     onTap: () => _navigateTo(
-                      context, 
-                      NutritionScreen(onThemeToggle: widget.onThemeToggle), // ИСПРАВЛЕНО ЗДЕСЬ
+                      context,
+                      NutritionScreen(onThemeToggle: widget.onThemeToggle),
                     ),
                   ),
                 ],

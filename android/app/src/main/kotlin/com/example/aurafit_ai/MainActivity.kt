@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-package com.example.aurafit_ai
-=======
-package kz.konina.aurafit_ai
->>>>>>> master
+﻿package com.example.aurafit_ai
 
 import io.flutter.embedding.android.FlutterActivity
 

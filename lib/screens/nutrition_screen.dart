@@ -1,11 +1,15 @@
+﻿import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../services/ai_service.dart';
-import 'analyze_screen.dart'; // Добавляем импорт
-import 'dart:typed_data';
+import '../widgets/aurafit_logo.dart';
+import 'analyze_screen.dart';
 
 class NutritionScreen extends StatefulWidget {
-  final VoidCallback onThemeToggle; // Добавляем параметр
+  final VoidCallback onThemeToggle;
+
   const NutritionScreen({super.key, required this.onThemeToggle});
 
   @override
@@ -13,56 +17,80 @@ class NutritionScreen extends StatefulWidget {
 }
 
 class _NutritionScreenState extends State<NutritionScreen> {
+  final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
 
   Future<void> _scanFood() async {
-    final picker = ImagePicker();
-    // Для удобства пользователя лучше дать выбор или использовать галерею
-    final image = await picker.pickImage(source: ImageSource.gallery);
+    if (_isLoading) return;
 
-    if (image != null) {
-      setState(() => _isLoading = true);
-      
-      try {
-        final Uint8List imageBytes = await image.readAsBytes();
-        
-        // Анализируем изображение через сервис
-        final response = await AiService.analyzeImage(imageBytes, "food");
-        
-        if (!mounted) return;
-
-        // Вместо вывода текста здесь, переходим на экран результата
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => AnalyzeScreen(
-              result: response,
-              onThemeToggle: widget.onThemeToggle,
-              isBody: false,
-            ),
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Сфотографировать еду'),
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Выбрать фото из галереи'),
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
           ),
         );
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error: ${e.toString()}")),
-          );
-        }
-      } finally {
-        if (mounted) setState(() => _isLoading = false);
-      }
+      },
+    );
+
+    if (source == null) return;
+
+    final image = await _picker.pickImage(
+      source: source,
+      imageQuality: 92,
+      maxWidth: 2200,
+    );
+
+    if (image == null) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final Uint8List imageBytes = await image.readAsBytes();
+      final response = await AiService.analyzeImage(imageBytes, 'food');
+
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AnalyzeScreen(
+            result: response,
+            onThemeToggle: widget.onThemeToggle,
+            isBody: false,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F13),
       appBar: AppBar(
-        title: const Text("Nutrition AI", style: TextStyle(fontWeight: FontWeight.bold)), 
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
+        title: const Text('Nutrition AI'),
       ),
       body: Container(
         width: double.infinity,
@@ -70,38 +98,42 @@ class _NutritionScreenState extends State<NutritionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Делаем более привлекательный интерфейс для сканера
+            const AuraFitLogo(size: 100),
+            const SizedBox(height: 20),
             Icon(
               Icons.fastfood_outlined,
-              size: 100,
-              color: Colors.deepPurpleAccent.withValues(alpha: 0.5),
+              size: 92,
+              color: scheme.primary.withValues(alpha: 0.6),
             ),
-            const SizedBox(height: 30),
-            const Text(
-              "Food Scanner",
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            const SizedBox(height: 24),
+            Text(
+              'Food Scanner',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              "Take a photo of your meal to calculate\ncalories and macronutrients instantly.",
+            Text(
+              'Сфотографируй прием пищи или выбери фото,\nи AI рассчитает КБЖУ.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: scheme.onSurface.withValues(alpha: 0.75),
+                  ),
             ),
-            const SizedBox(height: 50),
-            
-            if (_isLoading) 
-              const CircularProgressIndicator(color: Colors.deepPurpleAccent)
+            const SizedBox(height: 36),
+            if (_isLoading)
+              CircularProgressIndicator(color: scheme.primary)
             else
               ElevatedButton.icon(
                 onPressed: _scanFood,
-                icon: const Icon(Icons.camera_alt_rounded),
-                label: const Text("SCAN MY MEAL", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.1)),
+                icon: const Icon(Icons.photo_camera_rounded),
+                label: const Text(
+                  'СКАНИРОВАТЬ ЕДУ',
+                  style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurpleAccent,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 60),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                  elevation: 5,
+                  minimumSize: const Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
           ],

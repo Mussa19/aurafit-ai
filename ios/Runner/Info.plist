@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Aurafit Ai</string>
+	<string>AuraFit AI</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,6 +28,12 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSCameraUsageDescription</key>
+	<string>AuraFit uses the camera to scan meals and body progress photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AuraFit needs photo library access to analyze selected images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>AuraFit can save processed images when needed.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

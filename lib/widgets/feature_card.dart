@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class FeatureCard extends StatelessWidget {
   final String title;
@@ -14,25 +14,26 @@ class FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell( // Заменили GestureDetector на InkWell для эффекта нажатия
+    final scheme = Theme.of(context).colorScheme;
+
+    return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         decoration: BoxDecoration(
-          // ИСПРАВЛЕНО: .withValues вместо .withOpacity
-          color: Colors.white.withValues(alpha: 0.05),
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Colors.deepPurpleAccent),
+            Icon(icon, size: 40, color: scheme.primary),
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: scheme.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
