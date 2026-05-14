@@ -2,6 +2,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
@@ -18,9 +19,13 @@ Future<void> main() async {
   }
 
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    if (kIsWeb || defaultTargetPlatform == TargetPlatform.windows) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } else {
+      await Firebase.initializeApp();
+    }
   } catch (e) {
     debugPrint('Firebase init error: $e');
   }
