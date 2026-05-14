@@ -1,13 +1,13 @@
 {
   "project_info": {
     "project_number": "153749492357",
-    "project_id": "aurafit-6bd9b",
-    "storage_bucket": "aurafit-6bd9b.firebasestorage.app"
+    "project_id": "aurafit-dbd9b",
+    "storage_bucket": "aurafit-dbd9b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:153749492357:android:6bd9b",
+        "mobilesdk_app_id": "1:153749492357:android:abe8ef81636e612d7b0fec",
         "android_client_info": {
           "package_name": "kz.konina.aurafit_ai"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAI6alttvp76JYBhv1pOKYSusn1scsaDHs"
+          "current_key": "AIzaSyCFv9tP24AANf9lFsIhEQGCYrJw0HYneNU"
         }
       ],
       "services": {
