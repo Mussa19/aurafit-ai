@@ -79,6 +79,12 @@ A user-facing landing page is included at:
 
 Open locally in a browser, or deploy with GitHub Pages/Firebase Hosting.
 
+## Creator
+
+- Name: Musa
+- Age: 20
+- Education: 4th-year student at MIU
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
