@@ -44,18 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
 
-      final uid = credential.user!.uid;
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_setup_complete', true);
-
-      if (doc.exists) {
-        final data = doc.data()!;
-        await prefs.setString('user_name', data['username'] ?? '');
-        await prefs.setString('user_weight', data['weight'] ?? '');
-        await prefs.setString('user_height', data['height'] ?? '');
-      }
 
       if (!mounted) return;
 
@@ -66,6 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         (route) => false,
       );
+
+      // Run profile sync in background so UI opens immediately after auth.
+      _syncUserProfile(credential.user!.uid);
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
@@ -78,9 +71,27 @@ class _LoginScreenState extends State<LoginScreen> {
       };
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login error: $e')),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _syncUserProfile(String uid) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!doc.exists) return;
+
+      final data = doc.data()!;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_name', data['username'] ?? '');
+      await prefs.setString('user_weight', data['weight'] ?? '');
+      await prefs.setString('user_height', data['height'] ?? '');
+    } catch (_) {}
   }
 
   @override

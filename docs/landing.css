@@ -1,0 +1,101 @@
+﻿:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #172033;
+  --muted: #5f6b85;
+  --brand: #2c7be5;
+  --brand-dark: #1f5cb0;
+  --ring: #dbe7ff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: radial-gradient(circle at top, #eef4ff 0%, var(--bg) 42%, #f9fbff 100%);
+  color: var(--text);
+}
+
+.hero {
+  padding: 64px 20px 36px;
+}
+
+.hero__content {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.logo {
+  width: 90px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  margin: 0 0 12px;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.cta {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cta:hover { background: var(--brand-dark); }
+
+.section {
+  max-width: 980px;
+  margin: 22px auto;
+  padding: 0 20px;
+}
+
+.features {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  line-height: 1.9;
+}
+
+.muted { color: var(--muted); }
+
+.phones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+  margin-top: 18px;
+}
+
+.phone-frame {
+  background: #0f1525;
+  border-radius: 32px;
+  padding: 10px;
+  margin: 0;
+  box-shadow: 0 20px 50px rgba(23, 32, 51, 0.22);
+}
+
+.phone-frame img {
+  width: 100%;
+  height: auto;
+  border-radius: 24px;
+  display: block;
+  border: 1px solid #1c2942;
+}
+
+@media (max-width: 640px) {
+  .hero { padding-top: 48px; }
+}

@@ -31,48 +31,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDF3NPoxi32nsAwkVY5uHIiDMZ9la-KrQM',
-    appId: '1:944373114575:web:917a46ef2c6f794bfe79ba',
-    messagingSenderId: '944373114575',
-    projectId: 'aurafit-6dce7',
-    authDomain: 'aurafit-6dce7.firebaseapp.com',
-    storageBucket: 'aurafit-6dce7.firebasestorage.app',
-    measurementId: 'G-XDC8JZ9E37',
+    apiKey: 'AIzaSyD5H3vgOULJ5kbDn2hurusMD5YHU-c9-gE',
+    appId: '1:153749492357:web:cba0616af6226c317b0fec',
+    messagingSenderId: '153749492357',
+    projectId: 'aurafit-dbd9b',
+    authDomain: 'aurafit-dbd9b.firebaseapp.com',
+    storageBucket: 'aurafit-dbd9b.firebasestorage.app',
+    measurementId: 'G-4J5PN2NLPG',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAI6alttvp76JYBhv1pOKYSusn1scsaDHs',
-    appId: '1:944373114575:android:a9fb68af91b65336fe79ba',
-    messagingSenderId: '944373114575',
-    projectId: 'aurafit-6dce7',
-    storageBucket: 'aurafit-6dce7.firebasestorage.app',
+    apiKey: 'AIzaSyCFv9tP24AANf9lFsIhEQGCYrJw0HYneNU',
+    appId: '1:153749492357:android:abe8ef81636e612d7b0fec',
+    messagingSenderId: '153749492357',
+    projectId: 'aurafit-dbd9b',
+    storageBucket: 'aurafit-dbd9b.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDnw5_teab5ioQTMFJ4dZlQN8mnojt8PXU',
-    appId: '1:944373114575:ios:0fcc3ea9d47aaf4efe79ba',
-    messagingSenderId: '944373114575',
-    projectId: 'aurafit-6dce7',
-    storageBucket: 'aurafit-6dce7.firebasestorage.app',
-    iosBundleId: 'kz.konina.aurafit_ai',
+    apiKey: 'AIzaSyCwRasX2GXm0ikcikXAkUSpRIcLiV_vHeo',
+    appId: '1:153749492357:ios:50f58c947d7662e67b0fec',
+    messagingSenderId: '153749492357',
+    projectId: 'aurafit-dbd9b',
+    storageBucket: 'aurafit-dbd9b.firebasestorage.app',
+    iosBundleId: 'com.example.aurafitAi',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDnw5_teab5ioQTMFJ4dZlQN8mnojt8PXU',
-    appId: '1:944373114575:ios:0fcc3ea9d47aaf4efe79ba',
-    messagingSenderId: '944373114575',
-    projectId: 'aurafit-6dce7',
-    storageBucket: 'aurafit-6dce7.firebasestorage.app',
-    iosBundleId: 'kz.konina.aurafit_ai',
+    apiKey: 'AIzaSyCwRasX2GXm0ikcikXAkUSpRIcLiV_vHeo',
+    appId: '1:153749492357:ios:50f58c947d7662e67b0fec',
+    messagingSenderId: '153749492357',
+    projectId: 'aurafit-dbd9b',
+    storageBucket: 'aurafit-dbd9b.firebasestorage.app',
+    iosBundleId: 'com.example.aurafitAi',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDF3NPoxi32nsAwkVY5uHIiDMZ9la-KrQM',
-    appId: '1:944373114575:web:b22fb5d14741557bfe79ba',
-    messagingSenderId: '944373114575',
-    projectId: 'aurafit-6dce7',
-    authDomain: 'aurafit-6dce7.firebaseapp.com',
-    storageBucket: 'aurafit-6dce7.firebasestorage.app',
-    measurementId: 'G-TSFSBSNTYN',
+    apiKey: 'AIzaSyD5H3vgOULJ5kbDn2hurusMD5YHU-c9-gE',
+    appId: '1:153749492357:web:6ffba79c3ef0da447b0fec',
+    messagingSenderId: '153749492357',
+    projectId: 'aurafit-dbd9b',
+    authDomain: 'aurafit-dbd9b.firebaseapp.com',
+    storageBucket: 'aurafit-dbd9b.firebasestorage.app',
+    measurementId: 'G-03Q7M0T5M2',
   );
+
 }

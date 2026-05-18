@@ -1,4 +1,6 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,17 +52,27 @@ class _SetupScreenState extends State<SetupScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          )
+          .timeout(const Duration(seconds: 25), onTimeout: () {
+        throw TimeoutException('auth_timeout');
+      });
 
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'username': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'weight': _weightController.text.trim(),
-        'height': _heightController.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+            'username': _nameController.text.trim(),
+            'email': _emailController.text.trim(),
+            'weight': _weightController.text.trim(),
+            'height': _heightController.text.trim(),
+            'createdAt': FieldValue.serverTimestamp(),
+          })
+          .timeout(const Duration(seconds: 25), onTimeout: () {
+        throw TimeoutException('firestore_timeout');
       });
 
       final prefs = await SharedPreferences.getInstance();
@@ -75,6 +87,30 @@ class _SetupScreenState extends State<SetupScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => HomeScreen(onThemeToggle: widget.onThemeToggle ?? () {}),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      final message = switch (e.code) {
+        'email-already-in-use' => 'This email is already registered. Try Log In.',
+        'invalid-email' => 'Invalid email address format.',
+        'operation-not-allowed' => 'Email/password sign-in is disabled in Firebase Auth.',
+        'weak-password' => 'Password is too weak (minimum 6 characters).',
+        'network-request-failed' => 'Network error. Check internet and try again.',
+        _ => 'Registration failed: ${e.message ?? e.code}',
+      };
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } on TimeoutException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.message == 'firestore_timeout'
+                ? 'Firestore timeout: check Firestore rules/network.'
+                : 'Firebase Auth timeout: check Authorized domains and internet.',
+          ),
         ),
       );
     } catch (e) {
