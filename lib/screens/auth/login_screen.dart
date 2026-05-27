@@ -63,10 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       final message = switch (e.code) {
+        'invalid-credential' => 'Неверный email или пароль.',
         'user-not-found' => 'No account found for this email',
         'wrong-password' => 'Incorrect password',
         'invalid-email' => 'Invalid email address',
         'user-disabled' => 'This account has been disabled',
+        'too-many-requests' => 'Слишком много попыток. Подождите и попробуйте снова.',
+        'network-request-failed' => 'Проблема с сетью. Проверь интернет и попробуй снова.',
         _ => 'Login failed: ${e.message}',
       };
 
