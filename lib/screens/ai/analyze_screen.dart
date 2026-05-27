@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
+import '../core/home_screen.dart';
 
 class AnalyzeScreen extends StatelessWidget {
   final dynamic result;

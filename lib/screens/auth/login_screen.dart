@@ -1,10 +1,10 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../widgets/aurafit_logo.dart';
-import 'home_screen.dart';
+import '../../widgets/aurafit_logo.dart';
+import '../core/home_screen.dart';
 import 'setup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -202,3 +202,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

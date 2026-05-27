@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../services/ai_service.dart';
+import '../../services/ai_service.dart';
 import 'analyze_screen.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   final ImagePicker picker = ImagePicker();
-  bool isBodyMode = false;
+  final bool isBodyMode = true;
   bool isLoading = false;
 
   Future<void> _chooseSourceAndAnalyze() async {
@@ -65,7 +65,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
       final result = await AiService.analyzeImage(
         imageBytes,
-        isBodyMode ? 'body' : 'food',
+        'body',
       );
 
       if (!mounted) return;
@@ -75,7 +75,7 @@ class _CameraScreenState extends State<CameraScreen> {
         MaterialPageRoute(
           builder: (_) => AnalyzeScreen(
             result: result,
-            isBody: isBodyMode,
+            isBody: true,
             onThemeToggle: widget.onThemeToggle,
           ),
         ),
@@ -117,18 +117,18 @@ class _CameraScreenState extends State<CameraScreen> {
             Center(
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 280),
-                width: isBodyMode ? 260 : 300,
-                height: isBodyMode ? 520 : 300,
+                width: 260,
+                height: 520,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: isBodyMode ? Colors.cyanAccent : Colors.orangeAccent,
+                    color: Colors.cyanAccent,
                     width: 2,
                   ),
-                  borderRadius: BorderRadius.circular(isBodyMode ? 130 : 28),
+                  borderRadius: BorderRadius.circular(130),
                 ),
                 child: Center(
                   child: Text(
-                    isBodyMode ? 'ALIGN BODY' : 'PLACE FOOD',
+                    'ALIGN BODY',
                     style: TextStyle(
                       color: scheme.onSurface,
                       fontWeight: FontWeight.bold,
@@ -143,15 +143,6 @@ class _CameraScreenState extends State<CameraScreen> {
             right: 0,
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildModeButton('FOOD', !isBodyMode),
-                    const SizedBox(width: 36),
-                    _buildModeButton('BODY', isBodyMode),
-                  ],
-                ),
-                const SizedBox(height: 28),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -191,22 +182,6 @@ class _CameraScreenState extends State<CameraScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildModeButton(String label, bool isActive) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: () => setState(() => isBodyMode = label == 'BODY'),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isActive ? scheme.onSurface : scheme.onSurface.withValues(alpha: 0.4),
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
       ),
     );
   }

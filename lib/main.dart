@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 import 'firebase_options.dart';
-import 'screens/splash_screen.dart';
+import 'screens/core/splash_screen.dart';
 import 'services/theme_service.dart';
 import 'theme/app_theme.dart';
 
@@ -99,3 +99,4 @@ class _AuraFitAppState extends State<AuraFitApp> {
     );
   }
 }
+

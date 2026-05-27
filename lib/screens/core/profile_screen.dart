@@ -1,10 +1,10 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../widgets/aurafit_logo.dart';
-import 'setup_screen.dart';
+import '../../widgets/aurafit_logo.dart';
+import '../auth/setup_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onThemeToggle;
@@ -217,3 +217,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+

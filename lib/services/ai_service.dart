@@ -52,9 +52,13 @@ class AiService {
   static Future<String> generateSchedule({
     required String weight,
     required String height,
+    String? personalNote,
   }) async {
-    final userPrompt = 'Create a weekly workout and meal plan for weight $weight kg and height $height cm. '
-        'Keep it practical and concise.';
+    final extra = (personalNote ?? '').trim();
+    final userPrompt =
+        'Create a weekly workout and meal plan for weight $weight kg and height $height cm. '
+        'Keep it practical and concise.'
+        '${extra.isNotEmpty ? '\n\nPersonal notes and preferences from today:\n$extra\n\nUse these notes to adjust both training and meal recommendations.' : ''}';
 
     return _runWithFallback(
       groqCall: _hasGroq

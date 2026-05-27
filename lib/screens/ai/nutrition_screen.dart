@@ -1,10 +1,10 @@
-﻿import 'dart:typed_data';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../services/ai_service.dart';
-import '../widgets/aurafit_logo.dart';
+import '../../services/ai_service.dart';
+import '../../widgets/aurafit_logo.dart';
 import 'analyze_screen.dart';
 
 class NutritionScreen extends StatefulWidget {
@@ -55,7 +55,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
 
     if (image == null) return;
-
     setState(() => _isLoading = true);
 
     try {
@@ -63,7 +62,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final response = await AiService.analyzeImage(imageBytes, 'food');
 
       if (!mounted) return;
-
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -76,9 +74,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -89,9 +85,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nutrition AI'),
-      ),
+      appBar: AppBar(title: const Text('Nutrition AI')),
       body: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(24),
@@ -100,17 +94,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
           children: [
             const AuraFitLogo(size: 100),
             const SizedBox(height: 20),
-            Icon(
-              Icons.fastfood_outlined,
-              size: 92,
-              color: scheme.primary.withValues(alpha: 0.6),
-            ),
+            Icon(Icons.fastfood_outlined, size: 92, color: scheme.primary.withValues(alpha: 0.6)),
             const SizedBox(height: 24),
             Text(
               'Food Scanner',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
@@ -142,3 +130,4 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 }
+

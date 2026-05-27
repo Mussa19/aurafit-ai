@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/aurafit_logo.dart';
+import '../../widgets/aurafit_logo.dart';
 import 'home_screen.dart';
-import 'setup_screen.dart';
+import '../auth/setup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   final bool isSetupComplete;
@@ -57,3 +57,4 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+

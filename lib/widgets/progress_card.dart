@@ -3,27 +3,37 @@
 class ProgressCard extends StatelessWidget {
   final String calories;
   final String workouts;
+  final VoidCallback? onTap;
 
-  const ProgressCard({super.key, required this.calories, required this.workouts});
+  const ProgressCard({
+    super.key,
+    required this.calories,
+    required this.workouts,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStat(context, 'Calories', calories, Icons.local_fire_department, Colors.orange),
-          Container(width: 1, height: 30, color: scheme.outline.withValues(alpha: 0.4)),
-          _buildStat(context, 'Workouts', workouts, Icons.fitness_center, Colors.blueAccent),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildStat(context, 'Calories', calories, Icons.local_fire_department, Colors.orange),
+            Container(width: 1, height: 30, color: scheme.outline.withValues(alpha: 0.4)),
+            _buildStat(context, 'Workouts', workouts, Icons.fitness_center, Colors.blueAccent),
+          ],
+        ),
       ),
     );
   }
